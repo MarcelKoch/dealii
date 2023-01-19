@@ -39,7 +39,7 @@ constexpr gko::remove_complex<T> tol =
       self->test_success = false;                                   \
       return;                                                       \
     }                                                               \
-  static_assert(true, "Enforce ; after macro");
+  static_assert(true, "Enforce ; after macro")
 
 
 #define TEST_ASSERT_NEAR(_a, _b, _tol)                                  \
@@ -54,7 +54,19 @@ constexpr gko::remove_complex<T> tol =
         return;                                                         \
       }                                                                 \
   }                                                                     \
-  static_assert(true, "Enforce ; after macro");
+  static_assert(true, "Enforce ; after macro")
+
+
+#define TEST_ASSERT_THROW(_cmd, _expected_exc) \
+  try                                          \
+    {                                          \
+      _cmd;                                    \
+      self->test_success = false;              \
+      return;                                  \
+    }                                          \
+  catch (const _expected_exc&)                  \
+    {}                                         \
+  static_assert(true, "Enforce ; after macro")
 
 
 

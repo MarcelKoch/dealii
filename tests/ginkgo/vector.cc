@@ -22,20 +22,20 @@
 // all include files you need here
 #include <deal.II/lac/ginkgo_vector.h>
 
+
+auto exec = gko::ReferenceExecutor::create();
+
+
 TEST(can_create_from_executor)
 {
-  auto exec = gko::ReferenceExecutor::create();
-
   GinkgoWrappers::Vector<double> v(exec);
 
-  TEST_ASSERT(v.size() == 0)
+  TEST_ASSERT(v.size() == 0);
 }
 
 
 TEST(can_create_from_size)
 {
-  auto exec = gko::ReferenceExecutor::create();
-
   GinkgoWrappers::Vector<double> v(7, exec);
 
   TEST_ASSERT(v.size() == 7);
@@ -44,8 +44,6 @@ TEST(can_create_from_size)
 
 TEST(can_create_from_initializer_list)
 {
-  auto exec = gko::ReferenceExecutor::create();
-
   GinkgoWrappers::Vector<double> v({1, 5, 3, 9}, exec);
 
   TEST_ASSERT(v[0] == 1);
@@ -57,8 +55,6 @@ TEST(can_create_from_initializer_list)
 
 TEST(can_copy_construct)
 {
-  auto exec = gko::ReferenceExecutor::create();
-
   GinkgoWrappers::Vector<double> v({1, 5, 3, 9}, exec);
 
   GinkgoWrappers::Vector<double> v2(v);
@@ -74,8 +70,6 @@ TEST(can_copy_construct)
 
 TEST(can_move_construct)
 {
-  auto exec = gko::ReferenceExecutor::create();
-
   GinkgoWrappers::Vector<double> v({1, 5, 3, 9}, exec);
 
   GinkgoWrappers::Vector<double> v2(std::move(v));
@@ -92,8 +86,6 @@ TEST(can_move_construct)
 
 TEST(can_access_ginkgo_object)
 {
-  auto exec = gko::ReferenceExecutor::create();
-
   GinkgoWrappers::Vector<double> v(10, exec);
 
   auto obj = v.get_gko_object();
@@ -104,8 +96,6 @@ TEST(can_access_ginkgo_object)
 
 TEST(wrapper_same_as_ginkgo_object)
 {
-  auto exec = gko::ReferenceExecutor::create();
-
   GinkgoWrappers::Vector<double> v({1, 5, 3, 9}, exec);
 
   auto obj = v.get_gko_object();
@@ -115,6 +105,21 @@ TEST(wrapper_same_as_ginkgo_object)
   for (std::size_t i = 0; i < v.size(); ++i)
     {
       TEST_ASSERT(obj->at(i) == v[i]);
+    }
+}
+
+
+TEST(can_reinit)
+{
+  GinkgoWrappers::Vector<double> v(7, exec);
+  GinkgoWrappers::Vector<double> w(3, exec);
+
+  v.reinit(w, false);
+
+  TEST_ASSERT(v.size() == w.size());
+  for (size_t i = 0; i < v.size(); ++i)
+    {
+      TEST_ASSERT(v[i] == 0.0);
     }
 }
 

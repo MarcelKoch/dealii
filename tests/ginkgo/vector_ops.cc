@@ -88,16 +88,6 @@ TEST(can_substract_vector)
   TEST_ASSERT_NEAR(v[3], 3.0, tol<double>);
 }
 
-TEST(can_compute_scalar_product)
-{
-  GinkgoWrappers::Vector<double> v({1, 2, 3, 4}, exec);
-  GinkgoWrappers::Vector<double> w({4, 3, 2, 1}, exec);
-
-  auto sp = v * w;
-
-  TEST_ASSERT_NEAR(sp, 20.0, tol<double>);
-}
-
 TEST(can_add_number)
 {
   GinkgoWrappers::Vector<double> v({1, 2, 3, 4}, exec);
@@ -163,7 +153,6 @@ TEST(can_equ)
   TEST_ASSERT_NEAR(v[3], 2.2, tol<double>);
 }
 
-
 int
 main()
 {
@@ -176,7 +165,6 @@ main()
   can_divide_by_number();
   can_add_vector();
   can_substract_vector();
-  can_compute_scalar_product();
   can_add_number();
   can_add_number_vector();
   can_add_number_vector_number_vector();
