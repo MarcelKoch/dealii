@@ -127,11 +127,176 @@ namespace GinkgoWrappers
       return data_.get();
     }
 
+    Vector &
+    operator=(const Number s);
+
+    Vector &
+    operator*=(const Number factor);
+
+    Vector &
+    operator/=(const Number factor);
+
+    Vector &
+    operator+=(const Vector &V);
+    Vector &
+    operator-=(const Vector &V);
+
+    Number
+    operator*(const Vector &V);
+
+    void
+    add(const Number a);
+
+    void
+    add(const Number a, const Vector &V);
+
+    /**
+     * @note Since there is no native Ginkgo operation for this, this uses a copy and two add operations
+     */
+    void
+    add(const Number a, const Vector &V, const Number b, const Vector &W);
+
+    /**
+     * @note Since there is no native Ginkgo operation for this, this uses a scale and add operation.
+     */
+    void
+    sadd(const Number s, const Number a, const Vector &V);
+
+    void
+    scale(const Vector &scaling_factors);
+
+    /**
+     * @note Since there is no native Ginkgo operation for this, this uses a copy and a scale operation.
+     */
+    void
+    equ(const Number a, const Vector &V);
+
+
   private:
     std::unique_ptr<GkoVec> data_;
   };
 
+  template <typename Number>
+  Vector<Number> &
+  Vector<Number>::operator=(const Number s)
+  {
+    data_->fill(s);
+    return *this;
+  }
 
+  template <typename Number>
+  void
+  Vector<Number>::equ(const Number a, const Vector &V)
+  {
+    AssertDimension(V.size(), size());
+    *this = V;
+    *this *= a;
+  }
+
+  template <typename Number>
+  void
+  Vector<Number>::scale(const Vector &scaling_factors)
+  {
+    AssertDimension(scaling_factors.size(), size());
+    auto exec     = data_->get_executor();
+    auto col_view = GkoVec::create(exec,
+                                   gko::dim<2>{1, size()},
+                                   gko::make_array_view(exec, size(), begin()),
+                                   size());
+    col_view->scale(scaling_factors.data_.get());
+  }
+
+  template <typename Number>
+  void
+  Vector<Number>::sadd(const Number s, const Number a, const Vector &V)
+  {
+    AssertDimension(V.size(), size());
+    *this *= s;
+    this->add(a, V);
+  }
+
+  template <typename Number>
+  void
+  Vector<Number>::add(const Number  a,
+                      const Vector &V,
+                      const Number  b,
+                      const Vector &W)
+  {
+    AssertDimension(V.size(), size());
+    AssertDimension(W.size(), size());
+    Vector tmp(V);
+    tmp.add(b / a, W);
+    this->add(a, tmp);
+  }
+
+  template <typename Number>
+  void
+  Vector<Number>::add(const Number a, const Vector &V)
+  {
+    Assert(V.size() == size(), ExcDimensionMismatch(V.size(), size()));
+    auto a_dense = gko::initialize<GkoVec>({a}, data_->get_executor());
+    data_->add_scaled(a_dense.get(), V.data_.get());
+  }
+
+  template <typename Number>
+  void
+  Vector<Number>::add(const Number a)
+  {
+    auto a_vec = Vector(size(), data_->get_executor());
+    a_vec.data_->fill(a);
+    *this += a_vec;
+  }
+
+  template <typename Number>
+  Vector<Number> &
+  Vector<Number>::operator*=(const Number factor)
+  {
+    auto factor_dense =
+      gko::initialize<GkoVec>({factor}, data_->get_executor());
+    data_->scale(factor_dense.get());
+    return *this;
+  }
+
+  template <typename Number>
+  Vector<Number> &
+  Vector<Number>::operator/=(const Number factor)
+  {
+    auto factor_dense =
+      gko::initialize<GkoVec>({factor}, data_->get_executor());
+    data_->inv_scale(factor_dense.get());
+    return *this;
+  }
+
+  template <typename Number>
+  Vector<Number> &
+  Vector<Number>::operator+=(const Vector &V)
+  {
+    AssertDimension(V.size(), size());
+    auto one = gko::initialize<GkoVec>({1.0}, data_->get_executor());
+    data_->add_scaled(one.get(), V.data_.get());
+    return *this;
+  }
+
+  template <typename Number>
+  Vector<Number> &
+  Vector<Number>::operator-=(const Vector &V)
+  {
+    AssertDimension(V.size(), size());
+    auto neg_one = gko::initialize<GkoVec>({-1.0}, data_->get_executor());
+    data_->add_scaled(neg_one.get(), V.data_.get());
+    return *this;
+  }
+
+  template <typename Number>
+  Number
+  Vector<Number>::operator*(const Vector &V)
+  {
+    AssertDimension(V.size(), size());
+    auto result =
+      GkoVec ::create(data_->get_executor()->get_master(), gko::dim<2>{1, 1});
+    data_->compute_conj_dot(V.data_.get(), result.get());
+    return result->at(0);
+  }
 } // namespace GinkgoWrappers
 
 DEAL_II_NAMESPACE_CLOSE
