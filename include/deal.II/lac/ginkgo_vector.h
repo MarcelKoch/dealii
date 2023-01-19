@@ -6,10 +6,13 @@
 
 #ifdef DEAL_II_WITH_GINKGO
 
+#  include <deal.II/base/index_set.h>
 #  include <deal.II/base/subscriptor.h>
 
 #  include <ginkgo/core/matrix/dense.hpp>
 
+#  include <iomanip>
+#  include <ios>
 #  include <memory>
 
 DEAL_II_NAMESPACE_OPEN
@@ -24,6 +27,7 @@ namespace GinkgoWrappers
 
   public:
     using value_type     = Number;
+    using real_type      = typename numbers::NumberTraits<Number>::real_type;
     using iterator       = value_type *;
     using const_iterator = const value_type *;
     using size_type      = types::global_dof_index;
@@ -70,6 +74,9 @@ namespace GinkgoWrappers
         }
       return *this;
     }
+
+    void
+    reinit(const Vector &V, const bool omit_zeroing_entries = false);
 
 
     iterator
@@ -121,6 +128,9 @@ namespace GinkgoWrappers
       return data_->get_size()[0];
     }
 
+    IndexSet
+    locally_owned_elements() const;
+
     const gko::matrix::Dense<Number> *
     get_gko_object() const noexcept
     {
@@ -142,7 +152,7 @@ namespace GinkgoWrappers
     operator-=(const Vector &V);
 
     Number
-    operator*(const Vector &V);
+    operator*(const Vector &V) const;
 
     void
     add(const Number a);
@@ -151,13 +161,13 @@ namespace GinkgoWrappers
     add(const Number a, const Vector &V);
 
     /**
-     * @note Since there is no native Ginkgo operation for this, this uses a copy and two add operations
+     * @note Since there is no native Ginkgo support for this, this uses a copy and two add operations
      */
     void
     add(const Number a, const Vector &V, const Number b, const Vector &W);
 
     /**
-     * @note Since there is no native Ginkgo operation for this, this uses a scale and add operation.
+     * @note Since there is no native Ginkgo support for this, this uses a scale and add operation.
      */
     void
     sadd(const Number s, const Number a, const Vector &V);
@@ -166,15 +176,149 @@ namespace GinkgoWrappers
     scale(const Vector &scaling_factors);
 
     /**
-     * @note Since there is no native Ginkgo operation for this, this uses a copy and a scale operation.
+     * @note Since there is no native Ginkgo support for this, this uses a copy and a scale operation.
      */
     void
     equ(const Number a, const Vector &V);
+
+    /**
+     * @note Since there is no native Ginkgo support for this, this computes the L1 norm and compares against 100 * minimal_number
+     * @return
+     */
+    bool
+    all_zero() const;
+
+    /**
+     * @warning Not implemented
+     */
+    Number
+    mean_value() const;
+
+    real_type
+    l1_norm() const;
+
+    real_type
+    l2_norm() const;
+
+    /**
+     * @warning Not implemented
+     */
+    real_type
+    linfty_norm() const;
+
+    /**
+     * @note Since there is no native Ginkgo support for this, this uses an add and a scalar product operation     * @return
+     */
+    Number
+    add_and_dot(const Number a, const Vector &V, const Vector &W);
+
+    void
+    print(std::ostream  &out,
+          const unsigned precision  = 3,
+          const bool     scientific = true,
+          const bool     accross    = true);
+
+    std::size_t memory_consumption() const;
 
 
   private:
     std::unique_ptr<GkoVec> data_;
   };
+  template <typename Number>
+  std::size_t
+  Vector<Number>::memory_consumption() const
+  {
+    return sizeof(Vector<Number>) + sizeof(GkoVec) + sizeof(Number) * size();
+  }
+
+  template <typename Number>
+  void
+  Vector<Number>::print(std::ostream      &out,
+                        const unsigned int precision,
+                        const bool         scientific,
+                        const bool         accross)
+  {
+    // TODO: figure out the meaning of accross
+    const auto default_precision = out.precision();
+
+    out << std::setprecision(default_precision);
+    if (scientific)
+      out << std::scientific;
+
+    gko::write(out, data_.get());
+
+    out << std::setprecision(default_precision);
+    if (scientific)
+      out << std::defaultfloat;
+  }
+
+  template <typename Number>
+  IndexSet
+  Vector<Number>::locally_owned_elements() const
+  {
+    return IndexSet(size());
+  }
+
+  template <typename Number>
+  Number
+  Vector<Number>::add_and_dot(const Number a, const Vector &V, const Vector &W)
+  {
+    this->add(a, V);
+    return *this * W;
+  }
+
+  template <typename Number>
+  real_type
+  Vector<Number>::linfty_norm() const
+  {
+    throw ExcNotImplemented();
+  }
+
+  template <typename Number>
+  real_type
+  Vector<Number>::l2_norm() const
+  {
+    auto result =
+      GkoVec::create(data_->get_executor()->get_master(), gko::dim<2>{1, 1});
+    data_->compute_norm2(result.get());
+    return result->at(0);
+  }
+
+  template <typename Number>
+  real_type
+  Vector<Number>::l1_norm() const
+  {
+    auto result =
+      GkoVec::create(data_->get_executor()->get_master(), gko::dim<2>{1, 1});
+    data_->compute_norm1(result.get());
+    return result->at(0);
+  }
+
+  template <typename Number>
+  Number
+  Vector<Number>::mean_value() const
+  {
+    throw ExcNotImplemented();
+  }
+
+  template <typename Number>
+  bool
+  Vector<Number>::all_zero() const
+  {
+    auto norm = l1_norm();
+    return norm <= 1e2 * std::numeric_limits<gko::remove_complex<Number>>::min()
+  }
+
+  template <typename Number>
+  void
+  Vector<Number>::reinit(const Vector &V, const bool omit_zeroing_entries)
+  {
+    data_ = GkoVec::create(data_->get_executor(), V.data_->get_size());
+    if (!omit_zeroing_entries)
+      {
+        data_->fill(0.0);
+      }
+  }
 
   template <typename Number>
   Vector<Number> &
@@ -289,7 +433,7 @@ namespace GinkgoWrappers
 
   template <typename Number>
   Number
-  Vector<Number>::operator*(const Vector &V)
+  Vector<Number>::operator*(const Vector &V) const
   {
     AssertDimension(V.size(), size());
     auto result =
