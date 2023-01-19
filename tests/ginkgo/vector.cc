@@ -17,39 +17,10 @@
 
 #include "../tests.h"
 
+#include "test_macros.h"
+
 // all include files you need here
 #include <deal.II/lac/ginkgo_vector.h>
-
-#define TEST_ASSERT(_assertion)                                     \
-  if (!(_assertion))                                                \
-    {                                                               \
-      deallog << std::string(TEST_name) + ":FAIL with " #_assertion \
-              << std::endl;                                         \
-      self->test_success = false;                                   \
-      return;                                                       \
-    }                                                               \
-  static_assert(true, "Enforce ; after macro");
-
-
-#define TEST(_name)                                             \
-  struct _name                                                  \
-  {                                                             \
-    _name()                                                     \
-      : test_success(true)                                      \
-    {                                                           \
-      _name::run(this);                                         \
-      if (test_success)                                         \
-        deallog << std::string(TEST_name) + ":OK" << std::endl; \
-    }                                                           \
-                                                                \
-    static void                                                 \
-    run(_name *self);                                           \
-                                                                \
-    static constexpr char TEST_name[] = #_name;                 \
-                                                                \
-    bool test_success;                                          \
-  };                                                            \
-  void _name::run(_name *self)
 
 TEST(can_create_from_executor)
 {
@@ -57,7 +28,7 @@ TEST(can_create_from_executor)
 
   GinkgoWrappers::Vector<double> v(exec);
 
-  TEST_ASSERT(v.size() == 0);
+  TEST_ASSERT(v.size() == 0)
 }
 
 
