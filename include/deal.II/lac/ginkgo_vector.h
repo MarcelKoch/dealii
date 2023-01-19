@@ -268,14 +268,14 @@ namespace GinkgoWrappers
   }
 
   template <typename Number>
-  real_type
+  typename Vector<Number>::real_type
   Vector<Number>::linfty_norm() const
   {
     throw ExcNotImplemented();
   }
 
   template <typename Number>
-  real_type
+  typename Vector<Number>::real_type
   Vector<Number>::l2_norm() const
   {
     auto result =
@@ -285,7 +285,7 @@ namespace GinkgoWrappers
   }
 
   template <typename Number>
-  real_type
+  typename Vector<Number>::real_type
   Vector<Number>::l1_norm() const
   {
     auto result =
@@ -306,7 +306,7 @@ namespace GinkgoWrappers
   Vector<Number>::all_zero() const
   {
     auto norm = l1_norm();
-    return norm <= 1e2 * std::numeric_limits<gko::remove_complex<Number>>::min()
+    return norm <= 1e2 * std::numeric_limits<gko::remove_complex<Number>>::min();
   }
 
   template <typename Number>
