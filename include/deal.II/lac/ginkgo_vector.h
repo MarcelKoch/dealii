@@ -36,6 +36,7 @@ namespace GinkgoWrappers
     Vector() = delete;
 
     Vector(std::shared_ptr<const gko::Executor> exec);
+    Vector(std::unique_ptr<GkoVec> v);
 
     explicit Vector(const size_type                      size,
                     std::shared_ptr<const gko::Executor> exec);

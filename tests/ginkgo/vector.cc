@@ -34,6 +34,17 @@ TEST(can_create_from_executor)
 }
 
 
+TEST(can_create_from_ginkgo_object)
+{
+  GinkgoWrappers::Vector<double> v(
+    gko::initialize<gko::matrix::Dense<double>>({1, 2, 3}, exec));
+
+  TEST_ASSERT(v[0] == 1);
+  TEST_ASSERT(v[1] == 2);
+  TEST_ASSERT(v[2] == 3);
+}
+
+
 TEST(can_create_from_size)
 {
   GinkgoWrappers::Vector<double> v(7, exec);
@@ -132,6 +143,7 @@ main()
   initlog();
 
   can_create_from_executor();
+  can_create_from_ginkgo_object();
   can_create_from_size();
   can_create_from_initializer_list();
   can_copy_construct();

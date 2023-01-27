@@ -38,6 +38,11 @@ namespace GinkgoWrappers
   {}
 
   template <typename Number>
+  Vector<Number>::Vector(std::unique_ptr<GkoVec> v)
+    : data_(std::move(v))
+  {}
+
+  template <typename Number>
   Vector<Number>::Vector(const size_type                      size,
                          std::shared_ptr<const gko::Executor> exec)
     : data_(GkoVec::create(std::move(exec), gko::dim<2>{size, 1}))
@@ -108,7 +113,7 @@ namespace GinkgoWrappers
   Vector<Number>::print(std::ostream      &out,
                         const unsigned int precision,
                         const bool         scientific,
-                        const bool         accross)
+                        const bool         accross [[maybe_unused]])
   {
     // TODO: figure out the meaning of accross
     const auto default_precision = out.precision();
