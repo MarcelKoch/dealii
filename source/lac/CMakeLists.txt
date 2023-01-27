@@ -173,6 +173,14 @@ if(DEAL_II_WITH_CUDA)
   )
 endif()
 
+# Add Ginkgo wrapper files
+if(DEAL_II_WITH_GINKGO)
+  set(_separate_src
+      ${_separate_src}
+      ginkgo_vector.cc)
+endif()
+
+
 # determined by profiling
 set(_n_includes_per_unity_file 20)
 

@@ -24,6 +24,7 @@ namespace GinkgoWrappers
   class Vector : public Subscriptor
   {
     using GkoVec = gko::matrix::Dense<Number>;
+    using GkoNormVec = typename gko::matrix::Dense<Number>::absolute_type;
 
   public:
     using value_type     = Number;
@@ -34,108 +35,51 @@ namespace GinkgoWrappers
 
     Vector() = delete;
 
-    Vector(std::shared_ptr<const gko::Executor> exec)
-      : data_(GkoVec::create(std::move(exec)))
-    {}
+    Vector(std::shared_ptr<const gko::Executor> exec);
 
     explicit Vector(const size_type                      size,
-                    std::shared_ptr<const gko::Executor> exec)
-      : data_(GkoVec::create(std::move(exec), gko::dim<2>{size, 1}))
-    {}
+                    std::shared_ptr<const gko::Executor> exec);
     explicit Vector(const std::initializer_list<Number> &list,
-                    std::shared_ptr<const gko::Executor> exec)
-      : data_(gko::initialize<GkoVec>(list, std::move(exec)))
-    {}
+                    std::shared_ptr<const gko::Executor> exec);
 
-    Vector(const Vector &other)
-      : data_(gko::clone(other.data_))
-    {}
-    Vector(Vector &&other) noexcept(false)
-      : Vector(other.data_->get_executor())
-    {
-      data_->move_from(other.data_.get());
-    };
+    Vector(const Vector &other);
+    Vector(Vector &&other) noexcept(false);
 
     Vector &
-    operator=(const Vector &other)
-    {
-      if (this != &other)
-        {
-          data_->copy_from(other.data_.get());
-        }
-      return *this;
-    }
+    operator=(const Vector &other);
     Vector &
-    operator=(Vector &&other) noexcept(false)
-    {
-      if (this != &other)
-        {
-          data_->move_from(other.data_.get());
-        }
-      return *this;
-    }
+    operator=(Vector &&other) noexcept(false);
 
     void
     reinit(const Vector &V, const bool omit_zeroing_entries = false);
 
+    iterator
+    begin() noexcept;
+    const_iterator
+    begin() const noexcept;
 
     iterator
-    begin() noexcept
-    {
-      return data_->get_values();
-    }
+    end() noexcept;
     const_iterator
-    begin() const noexcept
-    {
-      return data_->get_const_values();
-    }
-
-    iterator
-    end() noexcept
-    {
-      return data_->get_values() + size();
-    }
-    const_iterator
-    end() const noexcept
-    {
-      return data_->get_const_values() + size();
-    }
+    end() const noexcept;
 
     Number
-    operator()(const size_type i) const noexcept
-    {
-      return data_->at(i);
-    }
+    operator()(const size_type i) const noexcept;
     Number &
-    operator()(const size_type i) noexcept
-    {
-      return data_->at(i);
-    }
+    operator()(const size_type i) noexcept;
     Number
-    operator[](const size_type i) const noexcept
-    {
-      return data_->at(i);
-    }
+    operator[](const size_type i) const noexcept;
     Number &
-    operator[](const size_type i) noexcept
-    {
-      return data_->at(i);
-    }
+    operator[](const size_type i) noexcept;
 
     size_type
-    size() const noexcept
-    {
-      return data_->get_size()[0];
-    }
+    size() const noexcept;
 
     IndexSet
     locally_owned_elements() const;
 
     const gko::matrix::Dense<Number> *
-    get_gko_object() const noexcept
-    {
-      return data_.get();
-    }
+    get_gko_object() const noexcept;
 
     Vector &
     operator=(const Number s);
@@ -224,223 +168,71 @@ namespace GinkgoWrappers
   private:
     std::unique_ptr<GkoVec> data_;
   };
+
   template <typename Number>
-  std::size_t
-  Vector<Number>::memory_consumption() const
+  typename Vector<Number>::iterator
+  Vector<Number>::begin() noexcept
   {
-    return sizeof(Vector<Number>) + sizeof(GkoVec) + sizeof(Number) * size();
+    return data_->get_values();
   }
 
   template <typename Number>
-  void
-  Vector<Number>::print(std::ostream      &out,
-                        const unsigned int precision,
-                        const bool         scientific,
-                        const bool         accross)
+  typename Vector<Number>::const_iterator
+  Vector<Number>::begin() const noexcept
   {
-    // TODO: figure out the meaning of accross
-    const auto default_precision = out.precision();
+    return data_->get_const_values();
+  }
 
-    out << std::setprecision(default_precision);
-    if (scientific)
-      out << std::scientific;
 
-    gko::write(out, data_.get());
-
-    out << std::setprecision(default_precision);
-    if (scientific)
-      out << std::defaultfloat;
+  template <typename Number>
+  typename Vector<Number>::iterator
+  Vector<Number>::end() noexcept
+  {
+    return data_->get_values() + size();
   }
 
   template <typename Number>
-  IndexSet
-  Vector<Number>::locally_owned_elements() const
+  typename Vector<Number>::const_iterator
+  Vector<Number>::end() const noexcept
   {
-    return IndexSet(size());
+    return data_->get_const_values() + size();
   }
 
   template <typename Number>
   Number
-  Vector<Number>::add_and_dot(const Number a, const Vector &V, const Vector &W)
+  Vector<Number>::operator()(const size_type i) const noexcept
   {
-    this->add(a, V);
-    return *this * W;
+    return data_->at(i);
   }
 
   template <typename Number>
-  typename Vector<Number>::real_type
-  Vector<Number>::linfty_norm() const
+  Number &
+  Vector<Number>::operator()(const size_type i) noexcept
   {
-    throw ExcNotImplemented();
-  }
-
-  template <typename Number>
-  typename Vector<Number>::real_type
-  Vector<Number>::l2_norm() const
-  {
-    auto result =
-      GkoVec::create(data_->get_executor()->get_master(), gko::dim<2>{1, 1});
-    data_->compute_norm2(result.get());
-    return result->at(0);
-  }
-
-  template <typename Number>
-  typename Vector<Number>::real_type
-  Vector<Number>::l1_norm() const
-  {
-    auto result =
-      GkoVec::create(data_->get_executor()->get_master(), gko::dim<2>{1, 1});
-    data_->compute_norm1(result.get());
-    return result->at(0);
+    return data_->at(i);
   }
 
   template <typename Number>
   Number
-  Vector<Number>::mean_value() const
+  Vector<Number>::operator[](const size_type i) const noexcept
   {
-    throw ExcNotImplemented();
+    return data_->at(i);
   }
 
   template <typename Number>
-  bool
-  Vector<Number>::all_zero() const
+  Number &
+  Vector<Number>::operator[](const size_type i) noexcept
   {
-    auto norm = l1_norm();
-    return norm <= 1e2 * std::numeric_limits<gko::remove_complex<Number>>::min();
+    return data_->at(i);
   }
 
   template <typename Number>
-  void
-  Vector<Number>::reinit(const Vector &V, const bool omit_zeroing_entries)
+  typename Vector<Number>::size_type
+  Vector<Number>::size() const noexcept
   {
-    data_ = GkoVec::create(data_->get_executor(), V.data_->get_size());
-    if (!omit_zeroing_entries)
-      {
-        data_->fill(0.0);
-      }
+    return data_->get_size()[0];
   }
 
-  template <typename Number>
-  Vector<Number> &
-  Vector<Number>::operator=(const Number s)
-  {
-    data_->fill(s);
-    return *this;
-  }
-
-  template <typename Number>
-  void
-  Vector<Number>::equ(const Number a, const Vector &V)
-  {
-    AssertDimension(V.size(), size());
-    *this = V;
-    *this *= a;
-  }
-
-  template <typename Number>
-  void
-  Vector<Number>::scale(const Vector &scaling_factors)
-  {
-    AssertDimension(scaling_factors.size(), size());
-    auto exec     = data_->get_executor();
-    auto col_view = GkoVec::create(exec,
-                                   gko::dim<2>{1, size()},
-                                   gko::make_array_view(exec, size(), begin()),
-                                   size());
-    col_view->scale(scaling_factors.data_.get());
-  }
-
-  template <typename Number>
-  void
-  Vector<Number>::sadd(const Number s, const Number a, const Vector &V)
-  {
-    AssertDimension(V.size(), size());
-    *this *= s;
-    this->add(a, V);
-  }
-
-  template <typename Number>
-  void
-  Vector<Number>::add(const Number  a,
-                      const Vector &V,
-                      const Number  b,
-                      const Vector &W)
-  {
-    AssertDimension(V.size(), size());
-    AssertDimension(W.size(), size());
-    Vector tmp(V);
-    tmp.add(b / a, W);
-    this->add(a, tmp);
-  }
-
-  template <typename Number>
-  void
-  Vector<Number>::add(const Number a, const Vector &V)
-  {
-    Assert(V.size() == size(), ExcDimensionMismatch(V.size(), size()));
-    auto a_dense = gko::initialize<GkoVec>({a}, data_->get_executor());
-    data_->add_scaled(a_dense.get(), V.data_.get());
-  }
-
-  template <typename Number>
-  void
-  Vector<Number>::add(const Number a)
-  {
-    auto a_vec = Vector(size(), data_->get_executor());
-    a_vec.data_->fill(a);
-    *this += a_vec;
-  }
-
-  template <typename Number>
-  Vector<Number> &
-  Vector<Number>::operator*=(const Number factor)
-  {
-    auto factor_dense =
-      gko::initialize<GkoVec>({factor}, data_->get_executor());
-    data_->scale(factor_dense.get());
-    return *this;
-  }
-
-  template <typename Number>
-  Vector<Number> &
-  Vector<Number>::operator/=(const Number factor)
-  {
-    auto factor_dense =
-      gko::initialize<GkoVec>({factor}, data_->get_executor());
-    data_->inv_scale(factor_dense.get());
-    return *this;
-  }
-
-  template <typename Number>
-  Vector<Number> &
-  Vector<Number>::operator+=(const Vector &V)
-  {
-    AssertDimension(V.size(), size());
-    auto one = gko::initialize<GkoVec>({1.0}, data_->get_executor());
-    data_->add_scaled(one.get(), V.data_.get());
-    return *this;
-  }
-
-  template <typename Number>
-  Vector<Number> &
-  Vector<Number>::operator-=(const Vector &V)
-  {
-    AssertDimension(V.size(), size());
-    auto neg_one = gko::initialize<GkoVec>({-1.0}, data_->get_executor());
-    data_->add_scaled(neg_one.get(), V.data_.get());
-    return *this;
-  }
-
-  template <typename Number>
-  Number
-  Vector<Number>::operator*(const Vector &V) const
-  {
-    AssertDimension(V.size(), size());
-    auto result =
-      GkoVec ::create(data_->get_executor()->get_master(), gko::dim<2>{1, 1});
-    data_->compute_conj_dot(V.data_.get(), result.get());
-    return result->at(0);
-  }
 } // namespace GinkgoWrappers
 
 DEAL_II_NAMESPACE_CLOSE
