@@ -21,6 +21,21 @@ DEAL_II_NAMESPACE_OPEN
 
 namespace GinkgoWrappers
 {
+  namespace detail
+  {
+    template <typename Number>
+    std::unique_ptr<gko::matrix::Dense<Number>>
+    create_mutable_view(Vector<Number> &v)
+    {
+      auto exec       = v.get_gko_object()->get_executor();
+      auto size       = v.get_gko_object()->get_size();
+      auto stride     = v.get_gko_object()->get_stride();
+      auto n_elements = v.get_gko_object()->get_num_stored_elements();
+      return gko::matrix::Dense<Number>::create(
+        exec, size, gko::make_array_view(exec, n_elements, v.begin()), stride);
+    }
+  } // namespace detail
+
 
   template <typename Number, typename IndexType = gko::int32>
   class Csr : public Subscriptor
@@ -83,7 +98,7 @@ namespace GinkgoWrappers
     data_->transpose()->apply(one.get(),
                               v.get_gko_object(),
                               one.get(),
-                              u.get_gko_object().get());
+                              detail::create_mutable_view(u).get());
   }
 
   template <typename Number, typename IndexType>
@@ -97,7 +112,7 @@ namespace GinkgoWrappers
     data_->apply(one.get(),
                  v.get_gko_object(),
                  one.get(),
-                 u.get_gko_object().get());
+                 detail::create_mutable_view(u).get());
   }
 
   template <typename Number, typename IndexType>
@@ -107,7 +122,7 @@ namespace GinkgoWrappers
                                  const Vector<OtherNumber> &v) const
   {
     data_->transpose()->apply(v.get_gko_object(),
-                              u.get_gko_object().get());
+                              detail::create_mutable_view(u).get());
   }
 
   template <typename Number, typename IndexType>
@@ -116,7 +131,7 @@ namespace GinkgoWrappers
   Csr<Number, IndexType>::vmult(Vector<OtherNumber>       &u,
                                 const Vector<OtherNumber> &v) const
   {
-    data_->apply(v.get_gko_object(), u.get_gko_object().get());
+    data_->apply(v.get_gko_object(), detail::create_mutable_view(u).get());
   }
 
 } // namespace GinkgoWrappers
