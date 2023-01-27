@@ -82,13 +82,18 @@ namespace GinkgoWrappers
     return *this;
   }
 
-
-
   template <typename Number>
-  const gko::matrix::Dense<Number> *
+  std::unique_ptr<const gko::matrix::Dense<Number>>
   Vector<Number>::get_gko_object() const noexcept
   {
-    return data_.get();
+    return gko::make_const_dense_view(data_.get());
+  }
+
+  template <typename Number>
+  std::unique_ptr<gko::matrix::Dense<Number>>
+  Vector<Number>::get_gko_object() noexcept
+  {
+    return gko::make_dense_view(data_.get());
   }
 
   template <typename Number>

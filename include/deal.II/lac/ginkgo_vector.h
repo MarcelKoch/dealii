@@ -23,7 +23,7 @@ namespace GinkgoWrappers
   template <typename Number>
   class Vector : public Subscriptor
   {
-    using GkoVec = gko::matrix::Dense<Number>;
+    using GkoVec     = gko::matrix::Dense<Number>;
     using GkoNormVec = typename gko::matrix::Dense<Number>::absolute_type;
 
   public:
@@ -78,8 +78,10 @@ namespace GinkgoWrappers
     IndexSet
     locally_owned_elements() const;
 
-    const gko::matrix::Dense<Number> *
+    std::unique_ptr<const gko::matrix::Dense<Number>>
     get_gko_object() const noexcept;
+    std::unique_ptr<gko::matrix::Dense<Number>>
+    get_gko_object() noexcept;
 
     Vector &
     operator=(const Number s);
@@ -162,7 +164,8 @@ namespace GinkgoWrappers
           const bool     scientific = true,
           const bool     accross    = true);
 
-    std::size_t memory_consumption() const;
+    std::size_t
+    memory_consumption() const;
 
 
   private:
