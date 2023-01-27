@@ -32,17 +32,6 @@ DEAL_II_NAMESPACE_OPEN
 
 namespace GinkgoWrappers
 {
-
-  struct noop_deleter
-  {
-    template <typename T>
-    void
-    operator()(T *ptr)
-    {}
-  };
-
-
-
   template <typename Number, typename IndexType>
   Csr<Number, IndexType>::Csr(std::shared_ptr<const gko::Executor> exec)
     : data_(GkoCsr::create(exec))

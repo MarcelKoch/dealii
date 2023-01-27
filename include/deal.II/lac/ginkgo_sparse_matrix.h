@@ -81,7 +81,7 @@ namespace GinkgoWrappers
     auto one =
       gko::initialize<gko::matrix::Dense<Number>>({1.0}, data_->get_executor());
     data_->transpose()->apply(one.get(),
-                              v.get_gko_object().get(),
+                              v.get_gko_object(),
                               one.get(),
                               u.get_gko_object().get());
   }
@@ -95,7 +95,7 @@ namespace GinkgoWrappers
     auto one =
       gko::initialize<gko::matrix::Dense<Number>>({1.0}, data_->get_executor());
     data_->apply(one.get(),
-                 v.get_gko_object().get(),
+                 v.get_gko_object(),
                  one.get(),
                  u.get_gko_object().get());
   }
@@ -106,7 +106,7 @@ namespace GinkgoWrappers
   Csr<Number, IndexType>::Tvmult(Vector<OtherNumber>       &u,
                                  const Vector<OtherNumber> &v) const
   {
-    data_->transpose()->apply(v.get_gko_object().get(),
+    data_->transpose()->apply(v.get_gko_object(),
                               u.get_gko_object().get());
   }
 
@@ -116,7 +116,7 @@ namespace GinkgoWrappers
   Csr<Number, IndexType>::vmult(Vector<OtherNumber>       &u,
                                 const Vector<OtherNumber> &v) const
   {
-    data_->apply(v.get_gko_object().get(), u.get_gko_object().get());
+    data_->apply(v.get_gko_object(), u.get_gko_object().get());
   }
 
 } // namespace GinkgoWrappers
