@@ -125,9 +125,11 @@ endif()
 
 if(DEAL_II_WITH_GINKGO)
   set(_unity_include_src
-    ${_unity_include_src}
-    ginkgo_solver.cc
-  )
+      ${_unity_include_src}
+      ginkgo_solver.cc
+      ginkgo_vector.cc
+      ginkgo_sparse_matrix.cc
+      )
 endif()
 
 # Also add Trilinos wrapper files
@@ -172,14 +174,6 @@ if(DEAL_II_WITH_CUDA)
     read_write_vector_cuda.cc
   )
 endif()
-
-# Add Ginkgo wrapper files
-if(DEAL_II_WITH_GINKGO)
-  set(_separate_src
-      ${_separate_src}
-      ginkgo_vector.cc)
-endif()
-
 
 # determined by profiling
 set(_n_includes_per_unity_file 20)
