@@ -42,6 +42,31 @@ namespace GinkgoWrappers
     : data_(std::move(M))
   {}
 
+  template <typename Number, typename IndexType>
+  Csr<Number, IndexType> &
+  Csr<Number, IndexType>::operator=(Csr &&m)
+  {
+    if (this != &m)
+      {
+        data_->move_from(m.data_.get());
+      }
+    return *this;
+  }
+
+  template <typename Number, typename IndexType>
+  Csr<Number, IndexType>::Csr(Csr &&m)
+    : data_(GkoCsr::create(m.get_gko_object()->get_executor()))
+  {
+    *this = std::move(m);
+  }
+
+  template <typename Number, typename IndexType>
+  const typename Csr<Number, IndexType>::GkoCsr*
+  Csr<Number, IndexType>::get_gko_object() const
+  {
+    data_.get();
+  }
+
   template class Csr<double, gko::int32>;
   template class Csr<double, gko::int64>;
   template class Csr<float, gko::int32>;

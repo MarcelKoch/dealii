@@ -8,6 +8,7 @@
 
 #  include <deal.II/base/index_set.h>
 #  include <deal.II/base/subscriptor.h>
+#  include <deal.II/lac/sparsity_pattern.h>
 
 #  include <deal.II/lac/ginkgo_vector.h>
 
@@ -52,8 +53,22 @@ namespace GinkgoWrappers
     Csr() = delete;
 
     Csr(std::shared_ptr<const gko::Executor> exec);
-
     Csr(std::unique_ptr<GkoCsr> M);
+
+    Csr(const SparsityPattern& sparsity);
+
+    Csr(const Csr &) = delete;
+    Csr(Csr &&m);
+
+    Csr &
+    operator=(const Csr &) = delete;
+    Csr &
+    operator=(Csr &&m);
+
+    size_type
+    m() const;
+    size_type
+    n() const;
 
     template <typename OtherNumber>
     void
@@ -77,15 +92,25 @@ namespace GinkgoWrappers
     void
     Tvmult_add(Vector<OtherNumber> &u, const Vector<OtherNumber> &v) const;
 
-    const GkoCsr *
-    get_gko_object() const
-    {
-      return data_.get();
-    }
+    const GkoCsr*
+    get_gko_object() const;
 
   private:
     std::unique_ptr<GkoCsr> data_;
   };
+  template <typename Number, typename IndexType>
+  typename Csr<Number, IndexType>::size_type
+  Csr<Number, IndexType>::m() const
+  {
+    return data_->get_size()[0];
+  }
+
+  template <typename Number, typename IndexType>
+  typename Csr<Number, IndexType>::size_type
+  Csr<Number, IndexType>::n() const
+  {
+    return data_->get_size()[1];
+  }
 
   template <typename Number, typename IndexType>
   template <typename OtherNumber>
