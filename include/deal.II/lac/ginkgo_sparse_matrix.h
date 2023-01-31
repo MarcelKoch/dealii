@@ -8,7 +8,6 @@
 
 #  include <deal.II/base/index_set.h>
 #  include <deal.II/base/subscriptor.h>
-#  include <deal.II/lac/sparsity_pattern.h>
 
 #  include <deal.II/lac/ginkgo_vector.h>
 
@@ -17,6 +16,8 @@
 #  include <iomanip>
 #  include <ios>
 #  include <memory>
+
+#  include "full_matrix.h"
 
 DEAL_II_NAMESPACE_OPEN
 
@@ -58,8 +59,6 @@ namespace GinkgoWrappers
         const size_type                      n);
     Csr(std::unique_ptr<GkoCsr> M);
 
-    Csr(const SparsityPattern& sparsity);
-
     Csr(const Csr &) = delete;
     Csr(Csr &&m);
 
@@ -95,12 +94,97 @@ namespace GinkgoWrappers
     void
     Tvmult_add(Vector<OtherNumber> &u, const Vector<OtherNumber> &v) const;
 
-    const GkoCsr*
+    void
+    set(const size_type i, const size_type j, const Number value);
+
+    /**
+     * @note Since there is no native Ginkgo support for this, this results in repeated calls to set(const size_type, const_size_type, const Number).
+     */
+    void
+    set(const std::vector<size_type> &indices,
+        const FullMatrix<Number>     &full_matrix,
+        const bool                    elide_zero_values = false);
+    /**
+     * @note Since there is no native Ginkgo support for this, this results in repeated calls to set(const size_type, const_size_type, const Number).
+     */
+    void
+    set(const std::vector<size_type> &row_indices,
+        const std::vector<size_type> &col_indices,
+        const FullMatrix<Number>     &full_matrix,
+        const bool                    elide_zero_values = false);
+    /**
+     * @note Since there is no native Ginkgo support for this, this results in repeated calls to set(const size_type, const_size_type, const Number).
+     */
+    void
+    set(const size_type               row,
+        const std::vector<size_type> &col_indices,
+        const std::vector<Number>    &values,
+        const bool                    elide_zero_values = false);
+    /**
+     * @note Since there is no native Ginkgo support for this, this results in repeated calls to set(const size_type, const_size_type, const Number).
+     */
+    void
+    set(const size_type  row,
+        const size_type  n_cols,
+        const size_type *col_indices,
+        const Number    *values,
+        const bool       elide_zero_values = false);
+
+    void
+    add(const size_type i, const size_type j, const Number value);
+
+    /**
+     * @note Since there is no native Ginkgo support for this, this results in repeated calls to add(const size_type, const_size_type, const Number).
+     */
+    void
+    add(const std::vector<size_type> &indices,
+        const FullMatrix<Number>     &full_matrix,
+        const bool                    elide_zero_values = true);
+
+    /**
+     * @note Since there is no native Ginkgo support for this, this results in repeated calls to add(const size_type, const_size_type, const Number).
+     */
+    void
+    add(const std::vector<size_type> &row_indices,
+        const std::vector<size_type> &col_indices,
+        const FullMatrix<Number>     &full_matrix,
+        const bool                    elide_zero_values = true);
+
+    /**
+     * @note Since there is no native Ginkgo support for this, this results in repeated calls to add(const size_type, const_size_type, const Number).
+     */
+    void
+    add(const size_type               row,
+        const std::vector<size_type> &col_indices,
+        const std::vector<Number>    &values,
+        const bool                    elide_zero_values = true);
+
+    /**
+     * @note Since there is no native Ginkgo support for this, this results in repeated calls to add(const size_type, const_size_type, const Number).
+     */
+    void
+    add(const size_type  row,
+        const size_type  n_cols,
+        const size_type *col_indices,
+        const Number    *values,
+        const bool       elide_zero_values      = true,
+        const bool       col_indices_are_sorted = false);
+
+    void
+    compress();
+
+    const GkoCsr *
     get_gko_object() const;
 
   private:
+    void
+    verify_build_state() const;
+
     std::unique_ptr<GkoCsr> data_;
+
+    gko::matrix_assembly_data<Number, IndexType> assembly_data_;
   };
+
   template <typename Number, typename IndexType>
   typename Csr<Number, IndexType>::size_type
   Csr<Number, IndexType>::m() const
@@ -121,6 +205,7 @@ namespace GinkgoWrappers
   Csr<Number, IndexType>::Tvmult_add(Vector<OtherNumber>       &u,
                                      const Vector<OtherNumber> &v) const
   {
+    verify_build_state();
     auto one =
       gko::initialize<gko::matrix::Dense<Number>>({1.0}, data_->get_executor());
     data_->transpose()->apply(one.get(),
@@ -135,6 +220,7 @@ namespace GinkgoWrappers
   Csr<Number, IndexType>::vmult_add(Vector<OtherNumber>       &u,
                                     const Vector<OtherNumber> &v) const
   {
+    verify_build_state();
     auto one =
       gko::initialize<gko::matrix::Dense<Number>>({1.0}, data_->get_executor());
     data_->apply(one.get(),
@@ -149,6 +235,7 @@ namespace GinkgoWrappers
   Csr<Number, IndexType>::Tvmult(Vector<OtherNumber>       &u,
                                  const Vector<OtherNumber> &v) const
   {
+    verify_build_state();
     data_->transpose()->apply(v.get_gko_object(),
                               detail::create_mutable_view(u).get());
   }
@@ -159,6 +246,7 @@ namespace GinkgoWrappers
   Csr<Number, IndexType>::vmult(Vector<OtherNumber>       &u,
                                 const Vector<OtherNumber> &v) const
   {
+    verify_build_state();
     data_->apply(v.get_gko_object(), detail::create_mutable_view(u).get());
   }
 
