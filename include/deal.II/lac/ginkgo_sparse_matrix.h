@@ -104,6 +104,7 @@ namespace GinkgoWrappers
     set(const std::vector<size_type> &indices,
         const FullMatrix<Number>     &full_matrix,
         const bool                    elide_zero_values = false);
+
     /**
      * @note Since there is no native Ginkgo support for this, this results in repeated calls to set(const size_type, const_size_type, const Number).
      */
@@ -112,6 +113,7 @@ namespace GinkgoWrappers
         const std::vector<size_type> &col_indices,
         const FullMatrix<Number>     &full_matrix,
         const bool                    elide_zero_values = false);
+
     /**
      * @note Since there is no native Ginkgo support for this, this results in repeated calls to set(const size_type, const_size_type, const Number).
      */
@@ -120,6 +122,7 @@ namespace GinkgoWrappers
         const std::vector<size_type> &col_indices,
         const std::vector<Number>    &values,
         const bool                    elide_zero_values = false);
+
     /**
      * @note Since there is no native Ginkgo support for this, this results in repeated calls to set(const size_type, const_size_type, const Number).
      */
