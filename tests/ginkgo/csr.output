@@ -1,5 +1,6 @@
 
 DEAL:can_create_from_executor:OK
+DEAL:can_create_with_size:OK
 DEAL:can_create_from_ginkgo_object:OK
 DEAL:can_vmult:OK
 DEAL:can_vmult_add:OK

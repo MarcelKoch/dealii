@@ -38,6 +38,14 @@ namespace GinkgoWrappers
   {}
 
   template <typename Number, typename IndexType>
+  Csr<Number, IndexType>::Csr(std::shared_ptr<const gko::Executor> exec,
+                              const Csr::size_type                 m,
+                              const Csr::size_type                 n)
+    : data_(GkoCsr::create(exec, gko::dim<2>{m, n}))
+  {
+  }
+
+  template <typename Number, typename IndexType>
   Csr<Number, IndexType>::Csr(std::unique_ptr<GkoCsr> M)
     : data_(std::move(M))
   {}

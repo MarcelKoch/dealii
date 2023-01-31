@@ -53,6 +53,9 @@ namespace GinkgoWrappers
     Csr() = delete;
 
     Csr(std::shared_ptr<const gko::Executor> exec);
+    Csr(std::shared_ptr<const gko::Executor> exec,
+        const size_type                      m,
+        const size_type                      n);
     Csr(std::unique_ptr<GkoCsr> M);
 
     Csr(const SparsityPattern& sparsity);

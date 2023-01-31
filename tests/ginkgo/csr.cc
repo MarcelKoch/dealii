@@ -33,6 +33,12 @@ TEST(can_create_from_executor)
   TEST_ASSERT(m.get_gko_object());
 }
 
+TEST(can_create_with_size){
+  GinkgoWrappers::Csr<double> m(exec, 3, 5);
+
+  TEST_ASSERT(m.m() == 3);
+  TEST_ASSERT(m.n() == 5);
+}
 
 TEST(can_create_from_ginkgo_object)
 {
@@ -131,6 +137,7 @@ main()
   initlog();
 
   can_create_from_executor();
+  can_create_with_size();
   can_create_from_ginkgo_object();
   can_vmult();
   can_vmult_add();
