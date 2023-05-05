@@ -185,6 +185,17 @@ namespace LinearAlgebra
      */
     explicit ReadWriteVector(const IndexSet &locally_stored_indices);
 
+
+    /**
+     * Creates a new vector with the same size as the input vector @p in_vector.
+     * If @p omit_zeroing_entries is false, the entries of the new vector will be
+     * initialized with zeros.
+     */
+    template <typename Number2>
+    static ReadWriteVector
+    create_with_same_size(const ReadWriteVector<Number2> &in_vector,
+                          bool omit_zeroing_entries = false);
+
     /**
      * Destructor.
      */
@@ -855,6 +866,20 @@ namespace LinearAlgebra
     // override in a derived class
     // for clarity be explicit on which function is called
     ReadWriteVector<Number>::reinit(locally_stored_indices);
+  }
+
+
+
+  template <typename Number>
+  template <typename Number2>
+  inline ReadWriteVector<Number>
+  ReadWriteVector<Number>::create_with_same_size(
+    const ReadWriteVector<Number2> &in_vector,
+    bool                            omit_zeroing_entries)
+  {
+    ReadWriteVector<Number> result;
+    result.reinit(in_vector, omit_zeroing_entries);
+    return result;
   }
 
 
