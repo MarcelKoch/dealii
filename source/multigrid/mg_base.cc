@@ -14,8 +14,6 @@
 // ---------------------------------------------------------------------
 
 #include <deal.II/lac/block_vector.h>
-#include <deal.II/lac/ginkgo_sparse_matrix.h>
-#include <deal.II/lac/ginkgo_vector.h>
 #include <deal.II/lac/la_parallel_block_vector.h>
 #include <deal.II/lac/la_parallel_vector.h>
 #include <deal.II/lac/la_vector.h>
@@ -50,8 +48,7 @@ MGTransferBase<VectorType>::prolongate_and_add(const unsigned int to_level,
                                                VectorType &       dst,
                                                const VectorType & src) const
 {
-  VectorType temp;
-  temp.reinit(dst, true);
+  auto temp = VectorType::create_with_same_size(dst, true);
 
   this->prolongate(to_level, temp, src);
 
