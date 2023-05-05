@@ -90,6 +90,14 @@ namespace LinearAlgebra
   }
 } // namespace LinearAlgebra
 #  endif
+
+#  ifdef DEAL_II_WITH_GINKGO
+namespace GinkgoWrappers
+{
+  template <typename Number>
+  class Vector;
+}
+#  endif
 #endif
 
 namespace LinearAlgebra
@@ -413,6 +421,15 @@ namespace LinearAlgebra
              &communication_pattern = {});
 #endif
 
+
+#ifdef DEAL_II_WITH_GINKGO
+    void
+    import(const GinkgoWrappers::Vector<Number> &ginkgo_vec,
+           VectorOperation::values               operation,
+           const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
+             & = {});
+#endif
+
     /**
      * The value returned by this function denotes the dimension of the vector
      * spaces that are modeled by objects of this kind. However, objects of
@@ -538,7 +555,7 @@ namespace LinearAlgebra
     template <typename Number2>
     void
     extract_subvector_to(const std::vector<size_type> &indices,
-                         std::vector<Number2> &        values) const;
+                         std::vector<Number2>         &values) const;
 
     /**
      * Instead of getting individual elements of a vector via operator(),
@@ -613,7 +630,7 @@ namespace LinearAlgebra
     template <typename Number2>
     void
     add(const std::vector<size_type> &indices,
-        const std::vector<Number2> &  values);
+        const std::vector<Number2>   &values);
 
     /**
      * This function is similar to the previous one but takes a
@@ -621,7 +638,7 @@ namespace LinearAlgebra
      */
     template <typename Number2>
     void
-    add(const std::vector<size_type> &  indices,
+    add(const std::vector<size_type>   &indices,
         const ReadWriteVector<Number2> &values);
 
     /**
@@ -633,13 +650,13 @@ namespace LinearAlgebra
     void
     add(const size_type  n_elements,
         const size_type *indices,
-        const Number2 *  values);
+        const Number2   *values);
 
     /**
      * Prints the vector to the output stream @p out.
      */
     void
-    print(std::ostream &     out,
+    print(std::ostream      &out,
           const unsigned int precision  = 3,
           const bool         scientific = true) const;
 
@@ -662,10 +679,10 @@ namespace LinearAlgebra
     std::enable_if_t<std::is_same<Dummy, Number>::value &&
                      dealii::is_tpetra_type<Number>::value>
     import(const Tpetra::Vector<Number, int, types::signed_global_dof_index>
-             &                     tpetra_vector,
-           const IndexSet &        locally_owned_elements,
+                                  &tpetra_vector,
+           const IndexSet         &locally_owned_elements,
            VectorOperation::values operation,
-           const MPI_Comm          mpi_comm,
+           const MPI_Comm         mpi_comm,
            const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
              &communication_pattern);
 #  endif
@@ -677,9 +694,9 @@ namespace LinearAlgebra
      */
     void
     import(const Epetra_MultiVector &multivector,
-           const IndexSet &          locally_owned_elements,
+           const IndexSet           &locally_owned_elements,
            VectorOperation::values   operation,
-           const MPI_Comm            mpi_comm,
+           const MPI_Comm           mpi_comm,
            const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
              &communication_pattern);
 #endif
@@ -955,7 +972,7 @@ namespace LinearAlgebra
   inline void
   ReadWriteVector<Number>::extract_subvector_to(
     const std::vector<size_type> &indices,
-    std::vector<Number2> &        extracted_values) const
+    std::vector<Number2>         &extracted_values) const
   {
     for (size_type i = 0; i < indices.size(); ++i)
       extracted_values[i] = operator()(indices[i]);
@@ -1007,7 +1024,7 @@ namespace LinearAlgebra
   template <typename Number2>
   inline void
   ReadWriteVector<Number>::add(const std::vector<size_type> &indices,
-                               const std::vector<Number2> &  values)
+                               const std::vector<Number2>   &values)
   {
     AssertDimension(indices.size(), values.size());
     add(indices.size(), indices.data(), values.data());
@@ -1018,7 +1035,7 @@ namespace LinearAlgebra
   template <typename Number>
   template <typename Number2>
   inline void
-  ReadWriteVector<Number>::add(const std::vector<size_type> &  indices,
+  ReadWriteVector<Number>::add(const std::vector<size_type>   &indices,
                                const ReadWriteVector<Number2> &values)
   {
     const size_type size = indices.size();
@@ -1039,7 +1056,7 @@ namespace LinearAlgebra
   inline void
   ReadWriteVector<Number>::add(const size_type  n_indices,
                                const size_type *indices,
-                               const Number2 *  values_to_add)
+                               const Number2   *values_to_add)
   {
     for (size_type i = 0; i < n_indices; ++i)
       {
@@ -1070,7 +1087,7 @@ namespace LinearAlgebra
   template <typename Functor>
   inline ReadWriteVector<Number>::FunctorTemplate<Functor>::FunctorTemplate(
     ReadWriteVector<Number> &parent,
-    const Functor &          functor)
+    const Functor           &functor)
     : parent(parent)
     , functor(functor)
   {}
