@@ -90,6 +90,14 @@ namespace LinearAlgebra
   }
 } // namespace LinearAlgebra
 #  endif
+
+#  ifdef DEAL_II_WITH_GINKGO
+namespace GinkgoWrappers
+{
+  template <typename Number>
+  class Vector;
+}
+#  endif
 #endif
 
 namespace LinearAlgebra
@@ -422,6 +430,15 @@ namespace LinearAlgebra
            VectorOperation::values             operation,
            const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
              &communication_pattern = {});
+#endif
+
+
+#ifdef DEAL_II_WITH_GINKGO
+    void
+    import(const GinkgoWrappers::Vector<Number> &ginkgo_vec,
+           VectorOperation::values               operation,
+           const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
+             & = {});
 #endif
 
     /**
