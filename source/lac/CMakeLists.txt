@@ -131,6 +131,7 @@ if(DEAL_II_WITH_GINKGO)
       ginkgo_solver.cc
       ginkgo_vector.cc
       ginkgo_sparse_matrix.cc
+      ginkgo_preconditioner.cpp
       )
 endif()
 
