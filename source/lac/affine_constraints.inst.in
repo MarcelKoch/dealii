@@ -239,6 +239,81 @@ for (S : REAL_AND_COMPLEX_SCALARS)
   }
 
 
+#ifdef DEAL_II_WITH_GINKGO
+
+// Pure vector variants:
+
+for (S : REAL_AND_COMPLEX_SCALARS)
+  {
+    template void AffineConstraints<S>::distribute_local_to_global<
+      GinkgoWrappers::Vector<S>>(const Vector<S> &,
+                                 const std::vector<types::global_dof_index> &,
+                                 GinkgoWrappers::Vector<S> &,
+                                 const FullMatrix<S> &) const;
+
+    template void AffineConstraints<S>::distribute_local_to_global<
+      GinkgoWrappers::Vector<S>>(const Vector<S> &,
+                                 const std::vector<types::global_dof_index> &,
+                                 const std::vector<types::global_dof_index> &,
+                                 GinkgoWrappers::Vector<S> &,
+                                 const FullMatrix<S> &,
+                                 bool) const;
+
+    template void AffineConstraints<S>::distribute<GinkgoWrappers::Vector<S>>(
+      GinkgoWrappers::Vector<S> &) const;
+
+    template void AffineConstraints<S>::condense<GinkgoWrappers::Vector<S>>(
+      const GinkgoWrappers::Vector<S> &, GinkgoWrappers::Vector<S> &) const;
+
+    template void AffineConstraints<S>::condense<GinkgoWrappers::Vector<S>>(
+      GinkgoWrappers::Vector<S> & vec) const;
+  }
+
+// Almost all matrix/vector variants:
+
+for (S : REAL_AND_COMPLEX_SCALARS; I : GINKGO_INDEX_TYPES)
+  {
+    template void AffineConstraints<S>::distribute_local_to_global<
+      GinkgoWrappers::AbstractMatrix<S, I>,
+      Vector<S>>(const FullMatrix<S> &,
+                 const Vector<S> &,
+                 const std::vector<AffineConstraints<S>::size_type> &,
+                 GinkgoWrappers::AbstractMatrix<S, I> &,
+                 Vector<S> &,
+                 bool,
+                 std::integral_constant<bool, false>) const;
+
+    template void
+    AffineConstraints<S>::distribute_local_to_global<GinkgoWrappers::AbstractMatrix<S, I>,
+                                                     GinkgoWrappers::Vector<S>>(
+      const FullMatrix<S> &,
+      const Vector<S> &,
+      const std::vector<AffineConstraints<S>::size_type> &,
+      GinkgoWrappers::AbstractMatrix<S, I> &,
+      GinkgoWrappers::Vector<S> &,
+      bool,
+      std::integral_constant<bool, false>) const;
+
+    template void
+    AffineConstraints<S>::distribute_local_to_global<GinkgoWrappers::AbstractMatrix<S, I>>(
+      const FullMatrix<S> &,
+      const std::vector<AffineConstraints<S>::size_type> &,
+      const std::vector<AffineConstraints<S>::size_type> &,
+      GinkgoWrappers::AbstractMatrix<S, I> &) const;
+
+    template void
+    AffineConstraints<S>::distribute_local_to_global<GinkgoWrappers::AbstractMatrix<S, I>>(
+      const FullMatrix<S> &,
+      const std::vector<AffineConstraints<S>::size_type> &,
+      const AffineConstraints<S> &,
+      const std::vector<AffineConstraints<S>::size_type> &,
+      GinkgoWrappers::AbstractMatrix<S, I> &) const;
+  }
+
+
+#endif
+
+
 // ---------------------------------------------------------------------
 //
 // Rest:

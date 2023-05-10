@@ -44,4 +44,16 @@ macro(feature_ginkgo_find_external var)
   endif()
 endmacro()
 
+
+macro(feature_ginkgo_configure_external)
+  foreach (vtype double float std::complex<double> std::complex<float>)
+    list(APPEND DEAL_II_EXPAND_GINKGO_VECTOR "GinkgoWrappers::Vector<${vtype}>")
+    foreach (itype gko::int32 gko::int64)
+      list(APPEND DEAL_II_EXPAND_GINKGO_SPARSE_MATRICES
+            "GinkgoWrappers::AbstractMatrix<${vtype}, ${itype}>")
+    endforeach ()
+  endforeach ()
+endmacro()
+
+
 configure_feature(GINKGO)

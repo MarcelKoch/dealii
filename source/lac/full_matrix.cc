@@ -81,6 +81,7 @@ TEMPL_OP_EQ(std::complex<double>, std::complex<float>);
 TEMPL_OP_EQ(std::complex<float>, std::complex<double>);
 TEMPL_OP_EQ(std::complex<double>, double);
 TEMPL_OP_EQ(std::complex<float>, float);
+TEMPL_OP_EQ(std::complex<float>, double);
 
 #  undef TEMPL_OP_EQ
 

@@ -123,8 +123,8 @@ namespace GinkgoWrappers
     const AbstractMatrix::size_type  row,
     const AbstractMatrix::size_type  n_cols,
     const AbstractMatrix::size_type *col_indices,
-    const Number                    *values,
-    const bool                       elide_zero_values)
+                              const Number *        values,
+                              const bool            elide_zero_values)
   {
     for (size_type k = 0; k < n_cols; ++k)
       {
@@ -138,7 +138,7 @@ namespace GinkgoWrappers
   template <typename Number, typename IndexType>
   void
   AbstractMatrix<Number, IndexType>::set(const std::vector<size_type> &indices,
-                                         const FullMatrix<Number> &full_matrix,
+                                         const FullMatrix<Number> &    full_matrix,
                                          const bool elide_zero_values)
   {
     set(indices, indices, full_matrix, elide_zero_values);
@@ -149,7 +149,7 @@ namespace GinkgoWrappers
   AbstractMatrix<Number, IndexType>::set(
     const std::vector<size_type> &row_indices,
     const std::vector<size_type> &col_indices,
-    const FullMatrix<Number>     &full_matrix,
+    const FullMatrix<Number> &    full_matrix,
     const bool                    elide_zero_values)
   {
     for (size_type row = 0; row < row_indices.size(); ++row)
@@ -165,10 +165,10 @@ namespace GinkgoWrappers
   template <typename Number, typename IndexType>
   void
   AbstractMatrix<Number, IndexType>::set(
-    const AbstractMatrix::size_type row,
-    const std::vector<size_type>   &col_indices,
-    const std::vector<Number>      &values,
-    const bool                      elide_zero_values)
+    const AbstractMatrix::size_type          row,
+                              const std::vector<size_type> &col_indices,
+                              const std::vector<Number> &   values,
+                              const bool                    elide_zero_values)
   {
     set(row,
         col_indices.size(),
@@ -195,9 +195,10 @@ namespace GinkgoWrappers
     const AbstractMatrix::size_type  row,
     const AbstractMatrix::size_type  n_cols,
     const AbstractMatrix::size_type *col_indices,
-    const Number                    *values,
-    const bool                       elide_zero_values,
-    const bool                       col_indices_are_sorted [[maybe_unused]])
+                              const Number *        values,
+                              const bool            elide_zero_values,
+                              const bool            col_indices_are_sorted
+                              [[maybe_unused]])
   {
     for (size_type k = 0; k < n_cols; ++k)
       {
@@ -211,7 +212,7 @@ namespace GinkgoWrappers
   template <typename Number, typename IndexType>
   void
   AbstractMatrix<Number, IndexType>::add(const std::vector<size_type> &indices,
-                                         const FullMatrix<Number> &full_matrix,
+                                         const FullMatrix<Number> &    full_matrix,
                                          const bool elide_zero_values)
   {
     add(indices, indices, full_matrix, elide_zero_values);
@@ -222,7 +223,7 @@ namespace GinkgoWrappers
   AbstractMatrix<Number, IndexType>::add(
     const std::vector<size_type> &row_indices,
     const std::vector<size_type> &col_indices,
-    const FullMatrix<Number>     &full_matrix,
+    const FullMatrix<Number> &    full_matrix,
     const bool                    elide_zero_values)
   {
     for (size_type i = 0; i < row_indices.size(); ++i)
@@ -238,10 +239,10 @@ namespace GinkgoWrappers
   template <typename Number, typename IndexType>
   void
   AbstractMatrix<Number, IndexType>::add(
-    const AbstractMatrix::size_type row,
-    const std::vector<size_type>   &col_indices,
-    const std::vector<Number>      &values,
-    const bool                      elide_zero_values)
+    const AbstractMatrix::size_type          row,
+                              const std::vector<size_type> &col_indices,
+                              const std::vector<Number> &   values,
+                              const bool                    elide_zero_values)
   {
     add(row,
         col_indices.size(),
@@ -265,11 +266,9 @@ namespace GinkgoWrappers
     : AbstractMatrix<Number, IndexType>(std::move(M))
   {}
 
-  template <typename Number,
-            typename IndexType,
-            template <class, class>
-            class GinkgoType>
-  void
+  template <typename Number, typename IndexType,
+  template <class, class>
+            class GinkgoType>void
   Matrix<Number, IndexType, GinkgoType>::compress(
     const VectorOperation::values /* unused */)
   {
@@ -278,13 +277,12 @@ namespace GinkgoWrappers
     auto assembled_matrix = ginkgo_type::create(this->exec_);
     assembled_matrix->read(assembly_data.get_ordered_data());
     this->data_ = std::move(assembled_matrix);
-  }
-
+                }
 
   template <typename Number, typename IndexType>
   Csr<Number, IndexType>::Csr(std::shared_ptr<const gko::Executor> exec,
                               const SparseMatrix<Number>          &other)
-    : Csr::Base{std::move(exec), 0, 0}
+  : Csr::Base{std::move(exec), 0, 0}
   {
     const size_type M = other.m();
     const size_type N = other.n();
@@ -294,8 +292,7 @@ namespace GinkgoWrappers
                                          other.n_nonzero_elements());
     Number    *mat_values   = data_host->get_values();
     IndexType *mat_row_ptrs = data_host->get_row_ptrs();
-    IndexType *mat_col_idxs = data_host->get_col_idxs();
-
+  IndexType *mat_col_idxs = data_host->get_col_idxs();
     // Copy over the data from the matrix to the data structures Ginkgo needs.
     //
     // Final note: if the matrix has entries in the sparsity pattern that are

@@ -26,6 +26,7 @@
 #include <deal.II/fe/fe_values.h>
 #include <deal.II/fe/mapping_q_cache.h>
 
+#include <deal.II/lac/ginkgo_vector.h>
 #include <deal.II/lac/la_parallel_vector.h>
 #include <deal.II/lac/la_vector.h>
 #include <deal.II/lac/petsc_vector.h>

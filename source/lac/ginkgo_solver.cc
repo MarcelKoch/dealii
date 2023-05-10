@@ -39,7 +39,7 @@ namespace GinkgoWrappers
   template <typename ValueType, typename IndexType>
   SolverBase<ValueType, IndexType>::SolverBase(
     std::shared_ptr<const gko::Executor> exec,
-    SolverControl                       &solver_control)
+    SolverControl &                      solver_control)
     : solver_control(solver_control)
     , executor(std::move(exec))
     , system_matrix(executor, 0, 0)
@@ -49,7 +49,7 @@ namespace GinkgoWrappers
   template <typename ValueType, typename IndexType>
   void
   SolverBase<ValueType, IndexType>::apply(
-    ::dealii::Vector<ValueType>       &solution,
+    ::dealii::Vector<ValueType> &      solution,
     const ::dealii::Vector<ValueType> &rhs)
   {
     auto view_solution = Vector<ValueType>::create_view(executor, solution);
@@ -80,8 +80,8 @@ namespace GinkgoWrappers
   void
   SolverBase<ValueType, IndexType>::solve(
     const ::dealii::SparseMatrix<ValueType> &matrix,
-    ::dealii::Vector<ValueType>             &solution,
-    const ::dealii::Vector<ValueType>       &rhs)
+    ::dealii::Vector<ValueType> &            solution,
+    const ::dealii::Vector<ValueType> &      rhs)
   {
     initialize(matrix);
     apply(solution, rhs);
@@ -91,9 +91,9 @@ namespace GinkgoWrappers
   template <typename ValueType, typename IndexType>
   void
   SolverBase<ValueType, IndexType>::solve(
-    const AbstractMatrix<ValueType, IndexType>              &matrix,
-    Vector<ValueType>                            &solution,
-    const Vector<ValueType>                      &rhs,
+    const AbstractMatrix<ValueType, IndexType> &             matrix,
+    Vector<ValueType> &                           solution,
+    const Vector<ValueType> &                     rhs,
     const PreconditionBase<ValueType, IndexType> &preconditioner)
   {
     solve_impl(matrix, solution, rhs, preconditioner);
@@ -144,7 +144,7 @@ namespace GinkgoWrappers
   std::enable_if_t<has_with_preconditioner<ParametersType>::value,
                    ParametersType &>
   add_preconditioner(
-    ParametersType                               &parameters,
+    ParametersType &                              parameters,
     const PreconditionBase<ValueType, IndexType> &preconditioner)
   {
     return parameters.with_generated_preconditioner(
@@ -154,7 +154,7 @@ namespace GinkgoWrappers
   template <typename ValueType, typename IndexType, typename ParametersType>
   std::enable_if_t<has_with_solver<ParametersType>::value, ParametersType &>
   add_preconditioner(
-    ParametersType                               &parameters,
+    ParametersType &                              parameters,
     const PreconditionBase<ValueType, IndexType> &preconditioner)
   {
     return parameters.with_generated_solver(
@@ -169,9 +169,9 @@ namespace GinkgoWrappers
             typename AdditionalDataType>
   EnableSolverBase<ValueType, IndexType, GinkgoType, AdditionalDataType>::
     EnableSolverBase(std::shared_ptr<const gko::Executor>      exec,
-                     SolverControl                            &solver_control,
+                     SolverControl &                           solver_control,
                      const std::shared_ptr<gko::LinOpFactory> &preconditioner,
-                     const AdditionalData                     &data)
+                     const AdditionalData &                    data)
     : EnableSolverBase(exec, solver_control, data)
   {
     solver_gen = ginkgo_type::build()
@@ -188,9 +188,9 @@ namespace GinkgoWrappers
             typename AdditionalDataType>
   void
   EnableSolverBase<ValueType, IndexType, GinkgoType, AdditionalDataType>::
-    solve_impl(const AbstractMatrix<ValueType, IndexType>              &matrix,
-               Vector<ValueType>                            &solution,
-               const Vector<ValueType>                      &rhs,
+    solve_impl(const AbstractMatrix<ValueType, IndexType> &             matrix,
+               Vector<ValueType> &                           solution,
+               const Vector<ValueType> &                     rhs,
                const PreconditionBase<ValueType, IndexType> &preconditioner)
   {
     Assert(this->executor, ExcNotInitialized());
