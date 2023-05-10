@@ -115,7 +115,7 @@ namespace GinkgoWrappers
 
   template <typename Number>
   void
-  Vector<Number>::print(std::ostream      &out,
+  Vector<Number>::print(std::ostream &     out,
                         const unsigned int precision,
                         const bool         scientific,
                         const bool         accross [[maybe_unused]])
@@ -319,7 +319,7 @@ namespace GinkgoWrappers
   std::unique_ptr<GinkgoType>
   create_view_impl(std::shared_ptr<const gko::Executor> exec,
                    types::global_dof_index              size,
-                   ValueType                           *data)
+                   ValueType *                          data)
   {
     auto host_exec = exec->get_master();
     return GinkgoType::create(host_exec,
@@ -341,7 +341,7 @@ namespace GinkgoWrappers
   template <typename Number>
   std::unique_ptr<Vector<Number>>
   Vector<Number>::create_view(std::shared_ptr<const gko::Executor> exec,
-                              ::dealii::Vector<Number>            &other)
+                              ::dealii::Vector<Number> &           other)
   {
     return std::make_unique<Vector<Number>>(create_view_impl<ginkgo_type>(
       std::move(exec), other.size(), other.begin()));
@@ -364,7 +364,7 @@ namespace GinkgoWrappers
   template <typename Number>
   std::unique_ptr<const Vector<Number>>
   Vector<Number>::create_view(std::shared_ptr<const gko::Executor> exec,
-                              const ::dealii::Vector<Number>      &other)
+                              const ::dealii::Vector<Number> &     other)
   {
     return std::make_unique<Vector<Number>>(create_view_impl<ginkgo_type>(
       std::move(exec),

@@ -34,6 +34,8 @@
 
 #include <deal.II/lac/affine_constraints.h>
 #include <deal.II/lac/block_vector.h>
+#include <deal.II/lac/ginkgo_sparse_matrix.h>
+#include <deal.II/lac/ginkgo_vector.h>
 #include <deal.II/lac/la_parallel_block_vector.h>
 #include <deal.II/lac/la_parallel_vector.h>
 #include <deal.II/lac/la_vector.h>
@@ -1479,9 +1481,11 @@ namespace FETools
     template <class VectorType>
     using BlockType = typename BlockTypeHelper<VectorType>::type;
 
-    template <class VectorType, class DH>
+    template <class VectorType, class VectorType2, class DH>
     void
-    reinit_distributed(const DH &dh, VectorType &vector)
+    reinit_distributed(const DH &  dh,
+                       VectorType &vector,
+                       const VectorType2 * = nullptr)
     {
       vector.reinit(dh.n_dofs());
     }
@@ -1490,7 +1494,8 @@ namespace FETools
     template <int dim, int spacedim>
     void
     reinit_distributed(const DoFHandler<dim, spacedim> &dh,
-                       PETScWrappers::MPI::Vector &     vector)
+                       PETScWrappers::MPI::Vector &     vector,
+                       const PETScWrappers::MPI::Vector * = nullptr)
     {
       const parallel::distributed::Triangulation<dim, spacedim> *parallel_tria =
         dynamic_cast<
@@ -1507,7 +1512,8 @@ namespace FETools
     template <int dim, int spacedim>
     void
     reinit_distributed(const DoFHandler<dim, spacedim> &dh,
-                       TrilinosWrappers::MPI::Vector &  vector)
+                       TrilinosWrappers::MPI::Vector &  vector,
+                       const TrilinosWrappers::MPI::Vector * = nullptr)
     {
       const parallel::distributed::Triangulation<dim, spacedim> *parallel_tria =
         dynamic_cast<
@@ -1525,8 +1531,10 @@ namespace FETools
 #    ifdef DEAL_II_TRILINOS_WITH_TPETRA
     template <int dim, int spacedim, typename Number>
     void
-    reinit_distributed(const DoFHandler<dim, spacedim> &              dh,
-                       LinearAlgebra::TpetraWrappers::Vector<Number> &vector)
+    reinit_distributed(
+      const DoFHandler<dim, spacedim> &              dh,
+      LinearAlgebra::TpetraWrappers::Vector<Number> &vector,
+      const LinearAlgebra::TpetraWrappers::Vector<Number> * = nullptr)
     {
       const parallel::distributed::Triangulation<dim, spacedim> *parallel_tria =
         dynamic_cast<
@@ -1542,7 +1550,8 @@ namespace FETools
     template <int dim, int spacedim>
     void
     reinit_distributed(const DoFHandler<dim, spacedim> &      dh,
-                       LinearAlgebra::EpetraWrappers::Vector &vector)
+                       LinearAlgebra::EpetraWrappers::Vector &vector,
+                       const LinearAlgebra::EpetraWrappers::Vector * = nullptr)
     {
       const parallel::distributed::Triangulation<dim, spacedim> *parallel_tria =
         dynamic_cast<
@@ -1555,6 +1564,18 @@ namespace FETools
     }
 #  endif
 #endif // DEAL_II_WITH_TRILINOS
+
+#ifdef DEAL_II_WITH_GINKGO
+    template <int dim, int spacedim, typename Number>
+    void
+    reinit_distributed(const DoFHandler<dim, spacedim> &,
+                       GinkgoWrappers::Vector<Number> &      vector,
+                       const GinkgoWrappers::Vector<Number> *config)
+    {
+      vector.reinit(*config);
+    }
+
+#endif
 
     template <int dim, int spacedim, typename Number>
     void
@@ -1739,7 +1760,7 @@ namespace FETools
 
 
     internal::BlockType<OutVector> u3;
-    internal::reinit_distributed(dof2, u3);
+    internal::reinit_distributed(dof2, u3, &u2);
     if (dynamic_cast<const parallel::distributed::Triangulation<dim, spacedim>
                        *>(&dof2.get_triangulation()) != nullptr)
       {

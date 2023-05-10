@@ -178,4 +178,23 @@ AffineConstraints<double>::set_zero<
   LinearAlgebra::distributed::Vector<double, MemorySpace::Default> &) const;
 #endif
 
+#ifdef DEAL_II_WITH_GINKGO
+
+template void
+dealii::AffineConstraints<double>::condense<GinkgoWrappers::Vector<float>>(
+  GinkgoWrappers::Vector<float> &) const;
+template void
+dealii::AffineConstraints<double>::distribute<GinkgoWrappers::Vector<float>>(
+  GinkgoWrappers::Vector<float> &) const;
+template void
+dealii::AffineConstraints<double>::distribute<
+  GinkgoWrappers::Vector<std::complex<double>>>(
+  GinkgoWrappers::Vector<std::complex<double>> &) const;
+template void
+dealii::AffineConstraints<double>::distribute<
+  GinkgoWrappers::Vector<std::complex<float>>>(
+  GinkgoWrappers::Vector<std::complex<float>> &) const;
+
+#endif
+
 DEAL_II_NAMESPACE_CLOSE

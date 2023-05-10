@@ -15,7 +15,7 @@
 
 
 
-for (V1 : VECTORS_WITH_MATRIX)
+for (V1 : VECTORS_WITH_MATRIX_NO_GINKGO)
   {
     template class MGLevelGlobalTransfer<V1>;
   }

@@ -119,6 +119,42 @@ VECTOR_TYPES := {   Vector<double>;
 
                     @DEAL_II_EXPAND_TRILINOS_MPI_BLOCKVECTOR@;
                     @DEAL_II_EXPAND_PETSC_MPI_BLOCKVECTOR@;
+
+                    @DEAL_II_EXPAND_GINKGO_VECTOR@;
+                  }
+
+
+VECTOR_TYPES_NO_GINKGO := {   Vector<double>;
+                    Vector<float> ;
+
+                    BlockVector<double>;
+                    BlockVector<float>;
+
+                    LinearAlgebra::Vector<double>;
+                    LinearAlgebra::Vector<float> ;
+
+                    LinearAlgebra::distributed::Vector<double>;
+                    LinearAlgebra::distributed::Vector<float> ;
+
+                    LinearAlgebra::distributed::BlockVector<double>;
+                    LinearAlgebra::distributed::BlockVector<float> ;
+
+                    @DEAL_II_EXPAND_COMPLEX_VECTORS@;
+                    @DEAL_II_EXPAND_COMPLEX_BLOCK_VECTORS@;
+                    @DEAL_II_EXPAND_COMPLEX_LA_VECTORS@;
+                    @DEAL_II_EXPAND_COMPLEX_LA_PARALLEL_VECTORS@;
+                    @DEAL_II_EXPAND_COMPLEX_LA_PARALLEL_BLOCK_VECTORS@;
+
+                    @DEAL_II_EXPAND_TRILINOS_MPI_VECTOR@;
+                    @DEAL_II_EXPAND_EPETRA_VECTOR@;
+                    @DEAL_II_EXPAND_TPETRA_VECTOR_DOUBLE@;
+                    @DEAL_II_EXPAND_TPETRA_VECTOR_FLOAT@;
+                    @DEAL_II_EXPAND_TPETRA_VECTOR_COMPLEX_DOUBLE@;
+                    @DEAL_II_EXPAND_TPETRA_VECTOR_COMPLEX_FLOAT@;
+                    @DEAL_II_EXPAND_PETSC_MPI_VECTOR@;
+
+                    @DEAL_II_EXPAND_TRILINOS_MPI_BLOCKVECTOR@;
+                    @DEAL_II_EXPAND_PETSC_MPI_BLOCKVECTOR@;
                   }
 
 // same as VECTOR_TYPES but only real-valued vectors (and only with PETSc
@@ -196,6 +232,25 @@ VECTORS_WITH_MATRIX := { Vector<double>;
                          @DEAL_II_EXPAND_TPETRA_VECTOR_COMPLEX_DOUBLE@;
                          @DEAL_II_EXPAND_TPETRA_VECTOR_COMPLEX_FLOAT@;
                          @DEAL_II_EXPAND_PETSC_MPI_VECTOR@;
+
+                         @DEAL_II_EXPAND_GINKGO_VECTOR@;
+                       }
+
+VECTORS_WITH_MATRIX_NO_GINKGO := { Vector<double>;
+                         Vector<float> ;
+
+                         BlockVector<double>;
+                         BlockVector<float>;
+
+                         LinearAlgebra::distributed::Vector<double>;
+
+                         @DEAL_II_EXPAND_TRILINOS_MPI_VECTOR@;
+                         @DEAL_II_EXPAND_EPETRA_VECTOR@;
+                         @DEAL_II_EXPAND_TPETRA_VECTOR_DOUBLE@;
+                         @DEAL_II_EXPAND_TPETRA_VECTOR_FLOAT@;
+                         @DEAL_II_EXPAND_TPETRA_VECTOR_COMPLEX_DOUBLE@;
+                         @DEAL_II_EXPAND_TPETRA_VECTOR_COMPLEX_FLOAT@;
+                         @DEAL_II_EXPAND_PETSC_MPI_VECTOR@;
                        }
 
 // Matrices
@@ -206,6 +261,8 @@ SPARSE_MATRICES := { SparseMatrix<double>;
                      BlockSparseMatrix<float>;
                      @DEAL_II_EXPAND_TRILINOS_SPARSE_MATRICES@;
                      @DEAL_II_EXPAND_PETSC_SPARSE_MATRICES@;
+
+                     @DEAL_II_EXPAND_GINKGO_SPARSE_MATRICES@;
                    }
 
 // Special lists for AffineConstraints:
@@ -272,3 +329,5 @@ OUTPUT_FLAG_TYPES := { DXFlags; UcdFlags; GnuplotFlags; PovrayFlags; EpsFlags;
 // CGAL Kernels
 CGAL_KERNELS := {CGAL::Simple_cartesian<double>; CGAL::Exact_predicates_exact_constructions_kernel; 
                 CGAL::Exact_predicates_inexact_constructions_kernel }
+
+GINKGO_INDEX_TYPES := { gko::int32; gko::int64 }

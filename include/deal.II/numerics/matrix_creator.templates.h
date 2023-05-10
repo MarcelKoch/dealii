@@ -39,6 +39,8 @@
 #include <deal.II/lac/block_sparse_matrix.h>
 #include <deal.II/lac/block_vector.h>
 #include <deal.II/lac/full_matrix.h>
+#include <deal.II/lac/ginkgo_sparse_matrix.h>
+#include <deal.II/lac/ginkgo_vector.h>
 #include <deal.II/lac/sparse_matrix.h>
 #include <deal.II/lac/vector.h>
 

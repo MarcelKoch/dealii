@@ -259,3 +259,24 @@ for (S1, S2, S3 : COMPLEX_SCALARS)
                                            const Vector<S1> &,
                                            const bool) const;
   }
+
+#ifdef DEAL_II_WITH_GINKGO
+
+
+for (S : REAL_AND_COMPLEX_SCALARS)
+  {
+    template void SparseMatrix<S>::vmult(GinkgoWrappers::Vector<S> &,
+                                         const GinkgoWrappers::Vector<S> &)
+      const;
+    template void SparseMatrix<S>::Tvmult(GinkgoWrappers::Vector<S> &,
+                                          const GinkgoWrappers::Vector<S> &)
+      const;
+    template void SparseMatrix<S>::vmult_add(GinkgoWrappers::Vector<S> &,
+                                             const GinkgoWrappers::Vector<S> &)
+      const;
+    template void SparseMatrix<S>::Tvmult_add(GinkgoWrappers::Vector<S> &,
+                                              const GinkgoWrappers::Vector<S> &)
+      const;
+  }
+
+#endif
