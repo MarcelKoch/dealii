@@ -14,7 +14,7 @@
 // ---------------------------------------------------------------------
 
 
-for (VEC : VECTOR_TYPES)
+for (VEC : VECTOR_TYPES_NO_GINKGO)
   {
     template class MGTransferBase<VEC>;
     template class MGMatrixBase<VEC>;

@@ -33,6 +33,7 @@
 #include <deal.II/grid/tria_iterator.h>
 
 #include <deal.II/lac/block_vector.h>
+#include <deal.II/lac/ginkgo_vector.h>
 #include <deal.II/lac/la_parallel_block_vector.h>
 #include <deal.II/lac/la_parallel_vector.h>
 #include <deal.II/lac/la_vector.h>

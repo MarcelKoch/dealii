@@ -15,7 +15,7 @@
 
 
 
-for (S : VECTOR_TYPES)
+for (S : VECTOR_TYPES_NO_GINKGO)
   {
     template class SolverBase<S>;
   }

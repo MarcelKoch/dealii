@@ -15,7 +15,7 @@
 
 
 
-for (VECTOR : VECTOR_TYPES)
+for (VECTOR : VECTOR_TYPES_NO_GINKGO)
   {
     dealii::GrowingVectorMemory<dealii::VECTOR>::release_unused_memory();
   }

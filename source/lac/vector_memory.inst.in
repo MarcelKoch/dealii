@@ -15,7 +15,7 @@
 
 
 
-for (VECTOR : VECTOR_TYPES)
+for (VECTOR : VECTOR_TYPES_NO_GINKGO)
   {
     template class VectorMemory<VECTOR>;
     template class GrowingVectorMemory<VECTOR>;

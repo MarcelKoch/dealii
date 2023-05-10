@@ -16,6 +16,8 @@
 #include <deal.II/base/config.h>
 
 #include <deal.II/lac/generic_linear_algebra.h>
+#include <deal.II/lac/ginkgo_sparse_matrix.h>
+#include <deal.II/lac/ginkgo_vector.h>
 
 #include <deal.II/particles/utilities.h>
 
